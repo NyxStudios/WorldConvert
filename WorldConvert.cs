@@ -122,7 +122,7 @@ namespace WorldConvert
             {
                 return false;
             }
-            TShock.Utils.Broadcast("Server might lag for a moment.", Color.Red);
+            TShock.Utils.Broadcast("Server can are is most probably kind of might lag for a moment.", Color.Red);
             for (int x = 0; x < Main.maxTilesX; x++)
             {
                 for (int y = 0; y < Main.maxTilesY; y++)
