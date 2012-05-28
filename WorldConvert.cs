@@ -92,6 +92,7 @@ namespace WorldConvert
             if (args.Parameters.Count < 2)
             {
                 args.Player.SendMessage("You must specify the biome you wish to convert and what to convert to.", Color.Red);
+                return;
             }
 
             Biome inbiome, outbiome;
@@ -151,6 +152,7 @@ namespace WorldConvert
             if (args.Parameters.Count < 1)
             {
                 args.Player.SendMessage("You must specify the biome you wish to remove.", Color.Red);
+                return;
             }
 
             Biome inbiome;
