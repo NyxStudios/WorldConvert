@@ -15,7 +15,7 @@ namespace WorldConvert
         Meteor,
         Jungle,
     }
-
+    [APIVersion(1, 12)]
     public class WorldConvert : TerrariaPlugin
     {
         private Dictionary<ConvertPair, Dictionary<int,int>> conversions;
