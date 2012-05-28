@@ -9,16 +9,16 @@ namespace WorldConvert
 {
     internal enum Biome
     {
-        Normal,
-        Corruption,
-        Hallow,
-        Meteor,
-        Jungle,
+        normal,
+        corruption,
+        hallow,
+        meteor,
+        jungle,
     }
     [APIVersion(1, 12)]
     public class WorldConvert : TerrariaPlugin
     {
-        private Dictionary<ConvertPair, Dictionary<int,int>> conversions;
+        private Dictionary<ConvertPair, Dictionary<int, int>> conversions;
 
         public override string Author
         {
@@ -42,20 +42,20 @@ namespace WorldConvert
 
         public WorldConvert(Main game) : base(game)
         {
-            conversions = new Dictionary<ConvertPair, Dictionary<int,int>>();
+            conversions = new Dictionary<ConvertPair, Dictionary<int, int>>(new EqualityComparer());
 
-            ConvertPair p = new ConvertPair(Biome.Hallow, Biome.Normal);
-            p.Add( 117,1 );
-            p.Add(109,2);
-            p.Add(116,53);
+            ConvertPair p = new ConvertPair(Biome.hallow, Biome.normal);
+            p.Add(117, 1);
+            p.Add(109, 2);
+            p.Add(116, 53);
             p.Add(110, 0);
             p.Add(118, 38);
             p.Add(115, 52);
             p.Add(113, 73);
-            conversions.Add(p,p.Tiles);
+            conversions.Add(p, p.Tiles);
 
-            ConvertPair p1 = new ConvertPair(Biome.Hallow, Biome.Corruption);
-            p1.Add( 117, 25);
+            ConvertPair p1 = new ConvertPair(Biome.hallow, Biome.corruption);
+            p1.Add(117, 25);
             p1.Add(109, 23);
             p1.Add(116, 112);
             p1.Add(110, 24);
@@ -64,7 +64,7 @@ namespace WorldConvert
             p1.Add(113, 0);
             conversions.Add(p1, p1.Tiles);
 
-            ConvertPair p2 = new ConvertPair(Biome.Corruption, Biome.Normal);
+            ConvertPair p2 = new ConvertPair(Biome.corruption, Biome.normal);
             p2.Add(25, 1);
             p2.Add(23, 2);
             p2.Add(32, 0);
@@ -72,7 +72,7 @@ namespace WorldConvert
             p2.Add(112, 53);
             conversions.Add(p2, p2.Tiles);
 
-            ConvertPair p3 = new ConvertPair(Biome.Corruption, Biome.Hallow);
+            ConvertPair p3 = new ConvertPair(Biome.corruption, Biome.hallow);
             p3.Add(25, 117);
             p3.Add(23, 109);
             p3.Add(32, 0);
@@ -91,19 +91,20 @@ namespace WorldConvert
         {
             if (args.Parameters.Count < 2)
             {
-                args.Player.SendMessage("You must specify the biome you wish to convert and what to convert to.", Color.Red);
+                args.Player.SendMessage("You must specify the biome you wish to convert and what to convert to.",
+                                        Color.Red);
                 return;
             }
 
             Biome inbiome, outbiome;
 
-            if (!Biome.TryParse(args.Parameters[0], out inbiome))
+            if (!Biome.TryParse(args.Parameters[0].ToLower(), out inbiome))
             {
                 args.Player.SendMessage(String.Format("{0} is not a valid biome", args.Parameters[0]), Color.Red);
                 return;
             }
 
-            if (!Biome.TryParse(args.Parameters[0], out outbiome))
+            if (!Biome.TryParse(args.Parameters[1].ToLower(), out outbiome))
             {
                 args.Player.SendMessage(String.Format("{0} is not a valid biome", args.Parameters[1]), Color.Red);
                 return;
@@ -117,22 +118,23 @@ namespace WorldConvert
 
         private bool Convert(ConvertPair pair)
         {
-            Dictionary<int, int> tiles;
-            if (!(conversions.TryGetValue(pair, out tiles)))
+            if (!conversions.ContainsKey(pair))
             {
                 return false;
             }
-            TShock.Utils.Broadcast("Server can are is most probably kind of might lag for a moment.", Color.Red);
+
+            Dictionary<int, int> tiles = conversions[pair];
+            TShock.Utils.Broadcast("Server might lag for a moment.", Color.Red);
             for (int x = 0; x < Main.maxTilesX; x++)
             {
                 for (int y = 0; y < Main.maxTilesY; y++)
                 {
                     int type = Main.tile[x, y].type;
 
-                    if( tiles.ContainsKey( Main.tile[x,y].type ) )
+                    if (tiles.ContainsKey(Main.tile[x, y].type))
                     {
-                        Main.tile[x, y].type = (byte)tiles[type];
-                        if( tiles[type] == 0 )
+                        Main.tile[x, y].type = (byte) tiles[type];
+                        if (tiles[type] == 0)
                         {
                             Main.tile[x, y].active = false;
                         }
@@ -163,7 +165,7 @@ namespace WorldConvert
                 return;
             }
 
-            if( !Convert( new ConvertPair(inbiome, Biome.Normal)))
+            if (!Convert(new ConvertPair(inbiome, Biome.normal)))
             {
                 args.Player.SendMessage("Cannot remove that biome.", Color.Red);
             }
@@ -219,9 +221,24 @@ namespace WorldConvert
             return ((From == p.From) && (To == p.To));
         }
 
-        public void Add( int i, int o )
+        public void Add(int i, int o)
         {
-            tiles.Add( i, o );
+            tiles.Add(i, o);
         }
+    }
+
+    internal class EqualityComparer : IEqualityComparer<ConvertPair>
+    {
+
+        public bool Equals(ConvertPair x, ConvertPair y)
+        {
+            return x.Equals(y);
+        }
+
+        public int GetHashCode(ConvertPair x)
+        {
+            return (int) (x.To)*13 + (int) (x.From)*13;
+        }
+
     }
 }
