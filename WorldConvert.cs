@@ -112,7 +112,7 @@ namespace WorldConvert
 
             if (!Convert(new ConvertPair(inbiome, outbiome)))
             {
-                args.Player.SendMessage("Invalid conversions.", Color.Red);
+                args.Player.SendMessage(String.Format("No conversion exists for {0} to {1}", args.Parameters[0], args.Parameters[1]), Color.Red);
             }
         }
 
